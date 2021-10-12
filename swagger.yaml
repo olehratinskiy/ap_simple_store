@@ -35,6 +35,9 @@ paths:
               $ref: '#/components/schemas/Item'
         required: true
       responses:
+        200:
+          description: Success
+          content: {}
         400:
           description: Invalid ID supplied
           content: {}
@@ -65,6 +68,9 @@ paths:
               $ref: '#/components/schemas/Item'
         required: true
       responses:
+        201:
+          description: Success
+          content: {}
         405:
           description: Invalid input
           content: {}
@@ -108,7 +114,7 @@ paths:
           content: {}
       security:
       - api_key: []
-    post:
+    put:
       tags:
       - item
       summary: Updates an item in the store with form data
@@ -140,6 +146,9 @@ paths:
                   description: Updated status of the item
                   example: sold out
       responses:
+        200:
+          description: Success
+          content: {}
         405:
           description: Invalid input
           content: {}
@@ -167,6 +176,9 @@ paths:
           type: integer
           format: int64
       responses:
+        200:
+          description: Success
+          content: {}
         400:
           description: Invalid ID supplied
           content: {}
@@ -216,25 +228,6 @@ paths:
       - simplestore_auth:
         - write:items
         - read:items
-  /store/inventory:
-    get:
-      tags:
-      - store
-      summary: Returns item inventories by status
-      description: Returns a map of status codes to quantities
-      operationId: getInventory
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties:
-                  type: integer
-                  format: int32
-      security:
-      - api_key: []
   /store/order:
     post:
       tags:
@@ -261,13 +254,15 @@ paths:
         400:
           description: Invalid Order
           content: {}
+      security:
+      - api_key: []
       x-codegen-request-body-name: body
   /store/order/{orderId}:
     get:
       tags:
       - store
       summary: Find purchase order by ID
-      description: For valid response try integer IDs with value >= 1 and <= 10.         Other
+      description: For valid response try integer IDs with value >= 1 and <= 8.         Other
         values will generated exceptions
       operationId: getOrderById
       parameters:
@@ -276,7 +271,7 @@ paths:
         description: ID of item that needs to be fetched
         required: true
         schema:
-          maximum: 10.0
+          maximum: 8.0
           minimum: 1.0
           type: integer
           format: int64
@@ -313,12 +308,17 @@ paths:
           type: integer
           format: int64
       responses:
+        200:
+          description: Success
+          content: {}
         400:
           description: Invalid ID supplied
           content: {}
         404:
           description: Order not found
           content: {}
+      security:
+      - api_key: []
   /user:
     post:
       tags:
@@ -332,26 +332,6 @@ paths:
           '*/*':
             schema:
               $ref: '#/components/schemas/User'
-        required: true
-      responses:
-        default:
-          description: successful operation
-          content: {}
-      x-codegen-request-body-name: body
-  /user/createWithList:
-    post:
-      tags:
-      - user
-      summary: Creates list of users with given input array
-      operationId: createUsersWithListInput
-      requestBody:
-        description: List of user object
-        content:
-          '*/*':
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/User'
         required: true
       responses:
         default:
@@ -461,6 +441,9 @@ paths:
               $ref: '#/components/schemas/User'
         required: true
       responses:
+        200:
+          description: Success
+          content: {}
         400:
           description: Invalid user supplied
           content: {}
@@ -468,6 +451,8 @@ paths:
           description: User not found
           content: {}
       x-codegen-request-body-name: body
+      security:
+      - api_key: []
     delete:
       tags:
       - user
@@ -482,6 +467,9 @@ paths:
         schema:
           type: string
       responses:
+        200:
+          description: Success
+          content: {}
         400:
           description: Invalid username supplied
           content: {}
