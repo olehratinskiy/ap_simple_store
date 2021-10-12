@@ -19,39 +19,6 @@ tags:
     url: http://swagger.io
 paths:
   /item:
-    put:
-      tags:
-      - item
-      summary: Update the item
-      operationId: updateItem
-      requestBody:
-        description: Item info update in the store
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Item'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Item'
-        required: true
-      responses:
-        200:
-          description: Success
-          content: {}
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Item not found
-          content: {}
-        405:
-          description: Validation exception
-          content: {}
-      security:
-      - simplestore_auth:
-        - write:items
-        - read:items
-      x-codegen-request-body-name: body
     post:
       tags:
       - item
@@ -228,7 +195,7 @@ paths:
       - simplestore_auth:
         - write:items
         - read:items
-  /store/order:
+  /store:
     post:
       tags:
       - store
@@ -257,7 +224,7 @@ paths:
       security:
       - api_key: []
       x-codegen-request-body-name: body
-  /store/order/{orderId}:
+  /store/{orderId}:
     get:
       tags:
       - store
@@ -495,19 +462,12 @@ components:
         itemId:
           type: integer
           format: int64
+        userId:
+          type: integer
+          format: int64
         quantity:
           type: integer
           format: int32
-        status:
-          type: string
-          description: Order Status
-          enum:
-          - placed
-          - approved
-          - delivered
-        complete:
-          type: boolean
-          default: false
       xml:
         name: Order
     User:
