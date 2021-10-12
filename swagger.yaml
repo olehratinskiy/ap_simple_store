@@ -291,6 +291,8 @@ paths:
         404:
           description: Order not found
           content: {}
+      security:
+        - api_key: []
     delete:
       tags:
       - store
@@ -391,6 +393,8 @@ paths:
         default:
           description: successful operation
           content: {}
+      security:
+      - api_key: []
   /user/{username}:
     get:
       tags:
@@ -420,6 +424,8 @@ paths:
         404:
           description: User not found
           content: {}
+      security:
+        - api_key: []
     put:
       tags:
       - user
@@ -520,10 +526,6 @@ components:
           type: string
         password:
           type: string
-        userStatus:
-          type: integer
-          description: User Status
-          format: int32
       xml:
         name: User
     Item:
