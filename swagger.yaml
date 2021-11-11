@@ -156,45 +156,6 @@ paths:
       - simplestore_auth:
         - write:items
         - read:items
-  /item/{itemId}/uploadImage:
-    post:
-      tags:
-      - item
-      summary: uploads an image
-      operationId: uploadFile
-      parameters:
-      - name: itemId
-        in: path
-        description: ID of item to update
-        required: true
-        schema:
-          maximum: 8.0
-          minimum: 1.0
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              properties:
-                additionalMetadata:
-                  type: string
-                  description: Additional data to pass to server
-                file:
-                  type: string
-                  description: file to upload
-                  format: binary
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
-      security:
-      - simplestore_auth:
-        - write:items
-        - read:items
   /store:
     post:
       tags:
@@ -492,7 +453,6 @@ components:
       required:
       - name
       - quantity
-      - photoUrls
       type: object
       properties:
         id:
@@ -505,13 +465,6 @@ components:
           type: integer
           format: int64
           example: 1
-        photoUrls:
-          type: array
-          xml:
-            name: photoUrl
-            wrapped: true
-          items:
-            type: string
         status:
           type: string
           description: item status in the store
@@ -538,6 +491,7 @@ components:
           authorizationUrl: http://localhost:5000
           scopes:
             write:items: modify items in your account
+
             read:items: read your items
     api_key:
       type: apiKey
