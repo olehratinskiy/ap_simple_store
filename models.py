@@ -14,9 +14,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, backref
 import sys
 
-sys.path.append(r"C:\Users\Desktop\CS-214\2nd year\AP_labs\environment\venv\Lib")
+sys.path.append("/home/yuliamarkiv/ap_virtualenv_6_variant")
 
-DB_URI = os.getenv("DB_URI", "mysql://root:Yy357131517!@localhost/simpleStore")
+DB_URI = os.getenv("DB_URI", "mysql://root:password@localhost/pp")
 
 engine = create_engine(DB_URI)
 SessionFactory = sessionmaker(bind=engine)
@@ -33,7 +33,7 @@ class User(BaseModel):
  first_name = Column(String(45), nullable=False)
  last_name = Column(String(45), nullable=False)
  email = Column(String(45), nullable=False)
- password = Column(String(45), nullable=False)
+ password = Column(String(2000), nullable=False)
 
 class Item(BaseModel):
  __tablename__ = "item"
