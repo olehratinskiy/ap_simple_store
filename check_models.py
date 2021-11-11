@@ -1,4 +1,4 @@
-from Lib.models import Session, User, Item, Orders
+from models import Session, User, Item, Orders
 
 session = Session()
 

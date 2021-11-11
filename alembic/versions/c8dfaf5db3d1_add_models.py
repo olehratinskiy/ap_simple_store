@@ -32,7 +32,7 @@ def upgrade():
     sa.Column('first_name', sa.String(length=45), nullable=False),
     sa.Column('last_name', sa.String(length=45), nullable=False),
     sa.Column('email', sa.String(length=45), nullable=False),
-    sa.Column('password', sa.String(length=45), nullable=False),
+    sa.Column('password', sa.String(length=2000), nullable=False),
     sa.PrimaryKeyConstraint('user_id')
     )
     op.create_table('orders',
