@@ -14,9 +14,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship, backref
 import sys
 
-sys.path.append("/home/yuliamarkiv/ap_virtualenv_6_variant")
+#sys.path.append("/home/yuliamarkiv/ap_virtualenv_6_variant")
 
-DB_URI = os.getenv("DB_URI", "mysql://root:password@localhost/pp")
+DB_URI = os.getenv("DB_URI", "mysql://root:A2452756b@127.0.0.1/store")
 
 engine = create_engine(DB_URI)
 SessionFactory = sessionmaker(bind=engine)
