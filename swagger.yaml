@@ -79,8 +79,6 @@ paths:
         404:
           description: Pet not found
           content: {}
-      security:
-      - api_key: []
     put:
       tags:
       - item

@@ -1,0 +1,39 @@
+# Users method
+# curl -X POST http://127.0.0.1:5000/api/v1/user -H "Content-Type: application/json" --data "{\"username\": \"user1\", \"first_name\": \"Lana\", \"last_name\": \"Chulup\", \"email\": \"chulup@gmail.com\", \"password\": \"user1\"}"
+# curl -X POST http://127.0.0.1:5000/api/v1/user -H "Content-Type: application/json" --data "{\"username\": \"user2\", \"first_name\": \"Lucy\", \"last_name\": \"Hale\", \"email\": \"abcd@gmail.com\", \"password\": \"user2\"}"
+
+# curl -X GET -u admin:adminpassword http://127.0.0.1:5000/api/v1/user/login
+# curl -X GET -u user1:user1 http://127.0.0.1:5000/api/v1/user/login
+# curl -X GET -u user2:user2 http://127.0.0.1:5000/api/v1/user/login
+
+# curl http://127.0.0.1:5000/api/v1/user/user2 -X GET -H "Authorization: Bearer ${token}"
+# curl http://127.0.0.1:5000/api/v1/user/mia -X GET -H "Authorization: Bearer ${token}"
+
+# curl -X PUT http://127.0.0.1:5000/api/v1/user/user1 -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" --data "{\"username\": \"user3\",\"first_name\": \"Tmp\", \"last_name\": \"Steven\", \"email\": \"abcf@gmail.com\"}"
+# curl -X PUT http://127.0.0.1:5000/api/v1/user/mia -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" --data "{\"username\": \"user8\",\"first_name\": \"Maria\", \"last_name\": \"Markiv\", \"email\": \"abc@gmail.com\"}"
+
+
+# curl http://127.0.0.1:5000/api/v1/user/user3 -X DELETE -H "Authorization: Bearer ${token}"
+# curl http://127.0.0.1:5000/api/v1/user/mia -X DELETE -H "Authorization: Bearer ${token}"
+
+
+# Item method
+# curl -X POST http://127.0.0.1:5000/api/v1/item -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" --data "{\"name\": \"pen\", \"quantity\": \"200\", \"price\": \"300\", \"status\": \"available\"}"
+# curl -X POST http://127.0.0.1:5000/api/v1/item -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" --data "{\"name\": \"kiwi\", \"quantity\": \"300\", \"price\": \"450\", \"status\": \"available\"}"
+
+# curl -X GET http://127.0.0.1:5000/api/v1/item/1
+
+# curl -X PUT http://127.0.0.1:5000/api/v1/item/2 -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" --data "{\"name\": \"kiwi\", \"quantity\": \"200\", \"price\": \"300\", \"status\": \"available\"}"
+
+# curl -X DELETE http://127.0.0.1:5000/api/v1/item/2 -H "Authorization: Bearer ${token}"
+
+
+# Store method
+# curl -X POST http://127.0.0.1:5000/api/v1/store -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" --data "{\"user_id\": \"1\", \"item_id\": \"1\", \"price\": \"300\"}"
+# curl -X POST http://127.0.0.1:5000/api/v1/store -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" --data "{\"user_id\": \"3\", \"item_id\": \"1\", \"price\": \"300\"}"
+
+# curl -X POST http://127.0.0.1:5000/api/v1/store -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" --data "{\"user_id\": \"2\", \"item_id\": \"1\", \"price\": \"300\"}"
+
+# curl -X GET http://127.0.0.1:5000/api/v1/store/1 -H "Authorization: Bearer ${token}"
+
+# curl -X DELETE http://127.0.0.1:5000/api/v1/store/1 -H "Authorization: Bearer ${token}"
