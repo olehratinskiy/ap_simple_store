@@ -16,7 +16,7 @@ import sys
 
 #sys.path.append("/home/yuliamarkiv/ap_virtualenv_6_variant")
 
-DB_URI = os.getenv("DB_URI", "mysql://root:A2452756b@127.0.0.1/store")
+DB_URI = os.getenv("DB_URI", "mysql://root:123abc!!!@127.0.0.1:3306/store")
 
 engine = create_engine(DB_URI)
 SessionFactory = sessionmaker(bind=engine)

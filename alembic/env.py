@@ -7,7 +7,7 @@ from alembic import context
 
 import os
 import sys
-#sys.path.append("/home/yuliamarkiv/ap_virtualenv_6_variant")
+# sys.path.append("/home/yuliamarkiv/ap_virtualenv_6_variant")
 from models import BaseModel
 
 # this is the Alembic Config object, which provides
@@ -16,7 +16,7 @@ config = context.config
 
 config.set_main_option(
     "sqlalchemy.url",
-    os.getenv("DB_URI", "mysql://root:A2452756b@127.0.0.1/store"),
+    os.getenv("DB_URI", "mysql://root:123abc!!!@127.0.0.1:3306/store"),
 )
 
 # Interpret the config file for Python logging.
