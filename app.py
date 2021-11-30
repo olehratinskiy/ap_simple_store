@@ -2,9 +2,9 @@ from flask import Flask, request, jsonify
 # from flask_jwt import JWT, jwt_required, current_identity
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
 from wsgiref.simple_server import make_server
-from werkzeug.security import safe_str_cmp
+# from werkzeug.security import safe_str_cmp
 from greeting import api
-from sqlalchemy.exc import NoResultFound
+# from sqlalchemy.exc import NoResultFound
 from flask_bcrypt import Bcrypt
 from schema import *
 from models import Session
@@ -197,7 +197,6 @@ def add_user():
 @app.route('/api/v1/user/login', methods = ["GET"])
 def login_user():
     auth = request.authorization
-
     if not auth or not auth.username or not auth.password:
         return 'Wrong data provided', 401
 
