@@ -1,14 +1,24 @@
 # from flask import url_for
 import pytest
-from app import app
+from app import app, bcrypt
 from app import session
 from models import User
 import base64
+# from models import BaseModel, engine
+# from alembic import command
+# from alembic.config import Config
 
 
 @pytest.fixture(scope='session')
 def client():
+    # BaseModel.metadata.drop_all(engine)
+    # BaseModel.metadata.create_all(engine)
+    # alembic_cfg = Config('D:/TestPP/ap_virtualenv_6_variant/alembic.ini')
+    # command.downgrade(alembic_cfg, '')
+    # command.upgrade(alembic_cfg, 'head')
     return app.test_client()
+    # yield
+    # command.downgrade(alembic_cfg, '-1')
 
 
 class Data:
@@ -36,6 +46,11 @@ class TestUser:
     user1_credentials = "user1:1234"
     user1_wrong_credentials = "user1:12345555"
 
+    object_user1 = User(username="user1", first_name="Andrii", last_name="Sydor",
+                        email="abc@gmail.com", password=bcrypt.generate_password_hash('1234').decode('utf-8'))
+    object_user2 = User(username="user2", first_name="Vasyl", last_name="Usual",
+                        email="def@gmail.com", password=bcrypt.generate_password_hash('12345').decode('utf-8'))
+
     def test_create_user(self, client):
         response = client.post('http://127.0.0.1:5000/api/v1/user', headers=self.json_headers, data=self.user1)
         assert response.status_code == 200
@@ -43,9 +58,8 @@ class TestUser:
         assert response2.status_code == 404
 
         user = session.query(User).filter_by(username='user1').first()
-        if user:
-            session.delete(user)
-            session.commit()
+        session.delete(user)
+        session.commit()
 
         response3 = client.post('http://127.0.0.1:5000/api/v1/user', headers=self.json_headers, data=0)
         assert response3.status_code == 400
@@ -57,7 +71,7 @@ class TestUser:
         response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
         assert response.status_code == 404
 
-        response = client.post('http://127.0.0.1:5000/api/v1/user', headers=self.json_headers, data=self.user1)
+        session.add(self.object_user1)
 
         response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
         assert response.status_code == 200
@@ -71,13 +85,8 @@ class TestUser:
         response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
         assert response.status_code == 400
 
-        user = session.query(User).filter_by(username='user1').first()
-        if user:
-            session.delete(user)
-            session.commit()
-
     def test_get_user(self, client):
-        response = client.post('http://127.0.0.1:5000/api/v1/user', headers=self.json_headers, data=self.user1)
+        session.add(self.object_user1)
         headers = self.basic_headers.copy()
         headers["Authorization"] += base64.b64encode(self.user1_credentials.encode()).decode("utf-8")
         response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
@@ -92,16 +101,6 @@ class TestUser:
         response = client.get(f'http://127.0.0.1:5000/api/v1/user/{self.wrong_username}', headers=headers)
         assert response.status_code == 400
 
-        response = client.post('http://127.0.0.1:5000/api/v1/user', headers=self.json_headers, data=self.user2)
+        session.add(self.object_user2)
         response = client.get('http://127.0.0.1:5000/api/v1/user/user2', headers=headers)
         assert response.status_code == 403
-
-        user = session.query(User).filter_by(username='user1').first()
-        if user:
-            session.delete(user)
-            session.commit()
-        user = session.query(User).filter_by(username='user2').first()
-        if user:
-            session.delete(user)
-            session.commit()
-
