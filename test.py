@@ -2,7 +2,7 @@
 import pytest
 from app import app, bcrypt
 from app import session
-from models import User, Item
+from models import User, Item, Orders
 import base64
 from sqlalchemy.orm.session import make_transient
 # from models import BaseModel, engine
@@ -371,6 +371,109 @@ class TestItem:
 
 
 class TestOrder:
-    def test_add_order(self, client):
-        ...
+    def test_add_order_by_admin(self, client, admin_login, combined_headers):
+        headers = combined_headers.copy()
+        headers['Authorization'] += admin_login
+        data = "{\"user_id\": \"1\", \"item_id\": \"1\", \"price\": \"300\"}"
+        response = client.post('http://127.0.0.1:5000/api/v1/store', headers=headers, data=data)
+        assert response.status_code == 403
+
+    def test_add_order_by_user(self, client, combined_headers, user1_create, user1_login, item_with_id_1):
+        headers = combined_headers.copy()
+        a = user1_create
+        headers['Authorization'] += user1_login
+        user = session.query(User).filter_by(username='user1').first()
+
+        data = "{\"user_id\": \" " + str(123) + " \", \"item_id\": \"1\", \"price\": \"300\"}"
+        response = client.post('http://127.0.0.1:5000/api/v1/store', headers=headers, data=data)
+        assert response.status_code == 403
+
+        data = "{\"user_id\": \" " + str(user.user_id) + " \", \"item_id\": \"123\", \"price\": \"300\"}"
+        response = client.post('http://127.0.0.1:5000/api/v1/store', headers=headers, data=data)
+        assert response.status_code == 400
+
+        data = "{\"user_id\": \" " + str(user.user_id) + " \", \"item_id\": \"1\", \"price\": \"300\"}"
+        response = client.post('http://127.0.0.1:5000/api/v1/store', headers=headers, data=data)
+        assert response.status_code == 200
+
+        data = "{\"user_id\": \" " + str(user.user_id) + " \", \"item_id\": \"1\", \"price\": \"300\"}"
+        response = client.post('http://127.0.0.1:5000/api/v1/store', headers=headers, data=data)
+        assert response.status_code == 400
+
+        order = session.query(Orders).filter_by(price=300).first()
+        session.delete(order)
+        session.commit()
+
+    def test_get_order(self, client, jwt_headers, user1_create, user1_login, item_with_id_1):
+        a = user1_create
+        headers = jwt_headers.copy()
+        headers['Authorization'] += user1_login
+
+        user = session.query(User).filter_by(username='user1').first()
+        order = Orders(order_id=1, user_id=user.user_id, item_id=1, price=300)
+        session.add(order)
+        session.commit()
+
+        response = client.get('http://127.0.0.1:5000/api/v1/store/1', headers=headers)
+        assert response.status_code == 200
+
+        response = client.get('http://127.0.0.1:5000/api/v1/store/2', headers=headers)
+        assert response.status_code in [400, 404]
+
+        order2 = Orders(order_id=2, user_id=1, item_id=1, price=300)
+        session.add(order2)
+        session.commit()
+
+        response = client.get('http://127.0.0.1:5000/api/v1/store/2', headers=headers)
+        assert response.status_code == 403
+
+        session.delete(order)
+        session.commit()
+        session.delete(order2)
+        session.commit()
+
+    def test_delete_order(self, client, jwt_headers, user1_create, user1_login, item_with_id_1):
+        a = user1_create
+        headers = jwt_headers.copy()
+        headers['Authorization'] += user1_login
+
+        response = client.delete('http://127.0.0.1:5000/api/v1/store/1', headers=headers)
+        assert response.status_code == 400
+
+        user = session.query(User).filter_by(username='user1').first()
+        order = Orders(order_id=1, user_id=user.user_id, item_id=1, price=300)
+        session.add(order)
+        session.commit()
+
+        response = client.delete('http://127.0.0.1:5000/api/v1/store/1', headers=headers)
+        assert response.status_code == 200
+
+        order2 = Orders(order_id=2, user_id=1, item_id=1, price=300)
+        session.add(order2)
+        session.commit()
+
+        response = client.delete('http://127.0.0.1:5000/api/v1/store/2', headers=headers)
+        assert response.status_code == 403
+
+        session.delete(order)
+        session.commit()
+        session.delete(order2)
+        session.commit()
+
+    def test_delete_user_with_order(self, client, user1_create, user1_login, item_with_id_1, jwt_headers):
+        a = user1_create
+        headers = jwt_headers.copy()
+        headers['Authorization'] += user1_login
+
+        user = session.query(User).filter_by(username='user1').first()
+        order = Orders(order_id=1, user_id=user.user_id, item_id=1, price=300)
+        session.add(order)
+        session.commit()
+
+        response = client.delete('http://127.0.0.1:5000/api/v1/user/user1', headers=headers)
+        assert response.status_code == 400
+
+        session.delete(order)
+        session.commit()
+
 
