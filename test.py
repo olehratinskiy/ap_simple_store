@@ -83,6 +83,13 @@ admin_wrong_credentials = "admin:admin123password"
 user1_credentials = "user1:1234"
 
 
+class TestGreeting:
+    def test_student_id_page(self, client):
+        response = client.get('http://127.0.0.1:5000/api/v1/hello-world-6')
+        assert response.status_code == 200
+        assert response.data == b'Hello World 6'
+
+
 class TestUser:
 
     user1 = "{\"username\": \"user1\", \"first_name\": \"Andrii\", \"last_name\":" \
@@ -476,4 +483,17 @@ class TestOrder:
         session.delete(order)
         session.commit()
 
+    def test_delete_item_with_order(self, client, item_with_id_1, user1_create,  jwt_headers, admin_login):
+        headers = jwt_headers.copy()
+        headers['Authorization'] += admin_login
 
+        user = session.query(User).filter_by(username='user1').first()
+        order = Orders(order_id=1, user_id=user.user_id, item_id=1, price=300)
+        session.add(order)
+        session.commit()
+
+        response = client.delete('http://127.0.0.1:5000/api/v1/item/1', headers=headers)
+        assert response.status_code == 400
+
+        session.delete(order)
+        session.commit()
