@@ -67,6 +67,17 @@ def admin_login():
     yield user_token
 
 
+@pytest.fixture
+def item_with_id_1():
+    item = Item(item_id=1, name="Book", quantity=25, price=215, status="available")
+    session.add(item)
+    session.commit()
+    yield
+    session.delete(item)
+    session.commit()
+
+
+
 admin_credentials = "admin:adminpassword"
 admin_wrong_credentials = "admin:admin123password"
 user1_credentials = "user1:1234"
@@ -290,4 +301,76 @@ class TestItem:
         item = session.query(Item).filter_by(name='pen').first()
         session.delete(item)
         session.commit()
+
+    def test_get_item(self, client):
+        response = client.get('http://127.0.0.1:5000/api/v1/item/1')
+        assert response.status_code == 404
+
+        item = Item(item_id=1, name="Book", quantity=25, price=215, status="available")
+        session.add(item)
+        session.commit()
+        response = client.get('http://127.0.0.1:5000/api/v1/item/1')
+        assert response.status_code == 200
+        assert response.json['name'] == 'Book'
+
+        session.delete(item)
+        session.commit()
+
+    def test_put_item(self, client, combined_headers, admin_login):
+        headers = combined_headers.copy()
+        headers['Authorization'] += admin_login
+        data = "{\"name\": \"kiwi\", \"quantity\": \"200\", \"price\": \"300\", \"status\": \"available\"}"
+
+        response = client.put('http://127.0.0.1:5000/api/v1/item/1', headers=headers, data=data)
+        assert response.status_code == 400
+
+        item = Item(item_id=1, name="Book", quantity=25, price=215, status="available")
+        session.add(item)
+        session.commit()
+
+        response = client.put('http://127.0.0.1:5000/api/v1/item/1', headers=headers, data=data)
+        assert response.status_code == 200
+        assert item.name == 'kiwi'
+
+        session.delete(item)
+        session.commit()
+
+    def test_put_item_by_not_admin(self, client, combined_headers, user1_create, user1_login, item_with_id_1):
+        user = user1_create
+        headers = combined_headers.copy()
+        headers['Authorization'] += user1_login
+        data = "{\"name\": \"kiwi\", \"quantity\": \"200\", \"price\": \"300\", \"status\": \"available\"}"
+
+        response = client.put('http://127.0.0.1:5000/api/v1/item/1', headers=headers, data=data)
+        assert response.status_code == 403
+
+    def test_delete_item(self, client, jwt_headers, admin_login):
+        headers = jwt_headers.copy()
+        headers['Authorization'] += admin_login
+        response = client.delete('http://127.0.0.1:5000/api/v1/item/1', headers=headers)
+        assert response.status_code == 404
+
+        item = Item(item_id=1, name="Book", quantity=25, price=215, status="available")
+        session.add(item)
+        session.commit()
+
+        response = client.delete('http://127.0.0.1:5000/api/v1/item/1', headers=headers)
+        assert response.status_code == 200
+        i = session.query(Item).filter_by(item_id=1).first()
+        assert not i
+
+    def test_delete_item_by_not_admin(self, client, jwt_headers, user1_create, user1_login, item_with_id_1):
+        a = user1_create
+        headers = jwt_headers.copy()
+        headers['Authorization'] += user1_login
+
+        response = client.delete('http://127.0.0.1:5000/api/v1/item/1', headers=headers)
+        assert response.status_code == 403
+        i = session.query(Item).filter_by(item_id=1).first()
+        assert i
+
+
+class TestOrder:
+    def test_add_order(self, client):
+        ...
 
