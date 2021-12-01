@@ -255,7 +255,7 @@ class TestItem:
         response = client.post('http://127.0.0.1:5000/api/v1/item', headers=headers, data=self.item_pen)
         assert response.status_code == 403
 
-        headers = combined_headers
+        headers = combined_headers.copy()
         headers['Authorization'] += admin_login
         response = client.post('http://127.0.0.1:5000/api/v1/item', headers=headers, data=self.item_pen)
         assert response.status_code == 200
@@ -264,4 +264,30 @@ class TestItem:
         session.delete(item)
         session.commit()
 
+    def test_post_nine_items(self, client, combined_headers, admin_login):
+        items = []
+        for i in range(8):
+            items.append(Item(name=f"item{i}", quantity=10, price=100, status="available"))
+            session.add(items[i])
+        session.commit()
+
+        headers = combined_headers.copy()
+        headers['Authorization'] += admin_login
+        response = client.post('http://127.0.0.1:5000/api/v1/item', headers=headers, data=self.item_pen)
+        assert response.status_code == 400
+
+        for i in range(8):
+            session.delete(items[i])
+        session.commit()
+
+    def test_post_item_with_the_same_name(self, client, combined_headers, admin_login):
+        headers = combined_headers.copy()
+        headers['Authorization'] += admin_login
+        response = client.post('http://127.0.0.1:5000/api/v1/item', headers=headers, data=self.item_pen)
+        response = client.post('http://127.0.0.1:5000/api/v1/item', headers=headers, data=self.item_pen)
+        assert response.status_code == 405
+
+        item = session.query(Item).filter_by(name='pen').first()
+        session.delete(item)
+        session.commit()
 
