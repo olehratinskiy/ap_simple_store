@@ -4,6 +4,7 @@ from app import app, bcrypt
 from app import session
 from models import User
 import base64
+from sqlalchemy.orm.session import make_transient
 # from models import BaseModel, engine
 # from alembic import command
 # from alembic.config import Config
@@ -37,9 +38,19 @@ class TestUser:
                   " \"Usual\", \"email\": \"def@gmail.com\", \"password\": \"1234\"}"
     wrong_username = "123123213"
 
+    user1_update = "{\"username\": \"new_user1\", \"first_name\": \"Andrii\", \"last_name\":" \
+                   " \"Usual\", \"email\": \"de@gmail.com\", \"password\": \"1234\"}"
+    user1_update_back = "{\"username\": \"user1\", \"first_name\": \"Andrii\", \"last_name\":" \
+                        " \"Sydor\", \"email\": \"abc@gmail.com\", \"password\": \"1234\"}"
+    user1_update_no_username = "{\"first_name\": \"Andrii\", \"last_name\":" \
+                               " \"Usual\", \"email\": \"de@gmail.com\", \"password\": \"1234\"}"
+    user1_update_2 = "{\"username\": \"user123\", \"first_name\": \"Andrii\", \"last_name\":" \
+                     " \"Usual\", \"email\": \"de@gmail.com\", \"password\": \"1234\"}"
+
     json_headers = {'Content-Type': 'application/json'}
     basic_headers = {'Authorization': 'Basic '}
     jwt_headers = {'Authorization': 'Bearer '}
+    combined_headers = {'Authorization': 'Bearer ', 'Content-Type': 'application/json'}
 
     admin_credentials = "admin:adminpassword"
     admin_wrong_credentials = "admin:admin123password"
@@ -72,6 +83,7 @@ class TestUser:
         assert response.status_code == 404
 
         session.add(self.object_user1)
+        session.commit()
 
         response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
         assert response.status_code == 200
@@ -85,7 +97,11 @@ class TestUser:
         response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
         assert response.status_code == 400
 
+        session.delete(self.object_user1)
+        session.commit()
+
     def test_get_user(self, client):
+        make_transient(self.object_user1)
         session.add(self.object_user1)
         headers = self.basic_headers.copy()
         headers["Authorization"] += base64.b64encode(self.user1_credentials.encode()).decode("utf-8")
@@ -101,6 +117,78 @@ class TestUser:
         response = client.get(f'http://127.0.0.1:5000/api/v1/user/{self.wrong_username}', headers=headers)
         assert response.status_code == 400
 
+        make_transient(self.object_user2)
         session.add(self.object_user2)
+        session.commit()
         response = client.get('http://127.0.0.1:5000/api/v1/user/user2', headers=headers)
         assert response.status_code == 403
+
+        session.delete(self.object_user1)
+        session.commit()
+        session.delete(self.object_user2)
+        session.commit()
+
+    def test_put_user(self, client):
+        make_transient(self.object_user1)
+        session.add(self.object_user1)
+        session.commit()
+        headers = self.basic_headers.copy()
+        headers["Authorization"] += base64.b64encode(self.user1_credentials.encode()).decode("utf-8")
+        response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
+        user1_token = response.json['token']
+
+        headers = self.combined_headers.copy()
+        headers['Authorization'] += user1_token
+        response = client.put('http://127.0.0.1:5000/api/v1/user/user1', headers=headers, data=self.user1_update)
+        assert response.status_code == 200
+
+        user1_token = response.json['token']
+        headers = self.combined_headers.copy()
+        headers['Authorization'] += user1_token
+        response = client.put('http://127.0.0.1:5000/api/v1/user/new_user1', headers=headers, data=self.user1_update)
+        assert response.status_code == 400
+
+        response = client.put('http://127.0.0.1:5000/api/v1/user/new_us', headers=headers, data=self.user1_update)
+        assert response.status_code == 404
+
+        make_transient(self.object_user2)
+        session.add(self.object_user2)
+        response = client.put('http://127.0.0.1:5000/api/v1/user/user2', headers=headers,
+                              data=self.user1_update_2)
+        assert response.status_code == 403
+
+        response = client.put('http://127.0.0.1:5000/api/v1/user/new_user1', headers=headers,
+                              data=self.user1_update_back)
+        assert response.status_code == 200
+
+        session.delete(self.object_user1)
+        session.delete(self.object_user2)
+        session.commit()
+
+    def test_delete_user(self, client):
+        make_transient(self.object_user1)
+        session.add(self.object_user1)
+        session.commit()
+
+        headers = self.basic_headers.copy()
+        headers["Authorization"] += base64.b64encode(self.user1_credentials.encode()).decode("utf-8")
+        response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
+        # assert response.status_code == 'a'
+        user1_token = response.json['token']
+
+        headers = self.jwt_headers.copy()
+        headers['Authorization'] += user1_token
+        response = client.delete('http://127.0.0.1:5000/api/v1/user/user2', headers=headers)
+        assert response.status_code == 404
+
+        make_transient(self.object_user2)
+        session.add(self.object_user2)
+        response = client.delete('http://127.0.0.1:5000/api/v1/user/user2', headers=headers)
+        assert response.status_code == 403
+
+        response = client.delete('http://127.0.0.1:5000/api/v1/user/user1', headers=headers)
+        assert response.status_code == 200
+
+        # session.delete(self.object_user1)
+        session.delete(self.object_user2)
+        session.commit()
