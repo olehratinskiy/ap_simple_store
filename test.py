@@ -172,7 +172,11 @@ class TestUser:
         headers['Authorization'] += user1_token
         response = client.get('http://127.0.0.1:5000/api/v1/user/user1', headers=headers)
         assert response.status_code == 200
-        assert response.json['username'] == 'user1'
+        user123 = session.query(User).filter_by(username='user1').first()
+        user1_json = {"user_id": user123.user_id, "username": "user1", "first_name": "Andrii",
+                      "last_name":  "Sydor", "email": "abc@gmail.com",
+                      "password": user123.password}
+        assert response.json == user1_json
 
         response = client.get(f'http://127.0.0.1:5000/api/v1/user/{self.wrong_username}', headers=headers)
         assert response.status_code == 400
