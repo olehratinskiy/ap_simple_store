@@ -127,10 +127,11 @@ class TestUser:
     def test_create_user(self, client, json_headers):
         response = client.post('http://127.0.0.1:5000/api/v1/user', headers=json_headers, data=self.user1)
         assert response.status_code == 200
+        user = session.query(User).filter_by(username='user1').first()
+        assert user
         response2 = client.post('http://127.0.0.1:5000/api/v1/user', headers=json_headers, data=self.wrong_user1)
         assert response2.status_code == 404
 
-        user = session.query(User).filter_by(username='user1').first()
         session.delete(user)
         session.commit()
 
@@ -146,6 +147,7 @@ class TestUser:
 
         session.add(self.object_user1)
         session.commit()
+        # a = user1_create
 
         response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
         assert response.status_code == 200
