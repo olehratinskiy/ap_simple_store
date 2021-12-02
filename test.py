@@ -274,6 +274,7 @@ class TestItem:
         assert response.status_code == 200
 
         item = session.query(Item).filter_by(name='pen').first()
+        assert item
         session.delete(item)
         session.commit()
 
