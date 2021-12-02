@@ -138,16 +138,10 @@ class TestUser:
         response3 = client.post('http://127.0.0.1:5000/api/v1/user', headers=json_headers, data=0)
         assert response3.status_code == 400
 
-    def test_login_user(self, client, basic_headers):
-
+    def test_login_user(self, client, basic_headers, user1_create):
+        a = user1_create
         headers = basic_headers.copy()
         headers["Authorization"] += base64.b64encode(self.user1_credentials.encode()).decode("utf-8")
-        response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
-        assert response.status_code == 404
-
-        session.add(self.object_user1)
-        session.commit()
-        # a = user1_create
 
         response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
         assert response.status_code == 200
@@ -161,12 +155,14 @@ class TestUser:
         response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
         assert response.status_code == 400
 
-        session.delete(self.object_user1)
-        session.commit()
+    def test_login_of_unreal_user(self, client, basic_headers):
+        headers = basic_headers.copy()
+        headers["Authorization"] += base64.b64encode(self.user1_credentials.encode()).decode("utf-8")
+        response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
+        assert response.status_code == 404
 
-    def test_get_user(self, client, basic_headers, jwt_headers):
-        make_transient(self.object_user1)
-        session.add(self.object_user1)
+    def test_get_user(self, client, basic_headers, jwt_headers, user1_create):
+        a = user1_create
         headers = basic_headers.copy()
         headers["Authorization"] += base64.b64encode(self.user1_credentials.encode()).decode("utf-8")
         response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
@@ -187,8 +183,6 @@ class TestUser:
         response = client.get('http://127.0.0.1:5000/api/v1/user/user2', headers=headers)
         assert response.status_code == 403
 
-        session.delete(self.object_user1)
-        session.commit()
         session.delete(self.object_user2)
         session.commit()
 
