@@ -77,7 +77,6 @@ def item_with_id_1():
     session.commit()
 
 
-
 admin_credentials = "admin:adminpassword"
 admin_wrong_credentials = "admin:admin123password"
 user1_credentials = "user1:1234"
@@ -190,10 +189,8 @@ class TestUser:
         session.delete(self.object_user2)
         session.commit()
 
-    def test_put_user(self, client, basic_headers, combined_headers):
-        make_transient(self.object_user1)
-        session.add(self.object_user1)
-        session.commit()
+    def test_put_user(self, client, basic_headers, combined_headers, user1_create):
+        a = user1_create
         headers = basic_headers.copy()
         headers["Authorization"] += base64.b64encode(self.user1_credentials.encode()).decode("utf-8")
         response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
@@ -222,8 +219,6 @@ class TestUser:
         response = client.put('http://127.0.0.1:5000/api/v1/user/new_user1', headers=headers,
                               data=self.user1_update_back)
         assert response.status_code == 200
-
-        session.delete(self.object_user1)
         session.delete(self.object_user2)
         session.commit()
 
