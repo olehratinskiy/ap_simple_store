@@ -145,7 +145,6 @@ class TestUser:
         response = client.get('http://127.0.0.1:5000/api/v1/user/login', headers=headers)
         assert response.status_code == 404
 
-        make_transient(self.object_user1)
         session.add(self.object_user1)
         session.commit()
         # a = user1_create
