@@ -11,7 +11,7 @@ PRIMARY KEY (user_id)
 CREATE TABLE item(
 item_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 name VARCHAR(45) NOT NULL,
-quantity INT UNSIGNED NOT NULL,
+storage_quantity INT UNSIGNED NOT NULL,
 price INT UNSIGNED NOT NULL,
 status ENUM('sold out', 'available'),
 PRIMARY KEY (item_id)
@@ -21,6 +21,7 @@ CREATE TABLE orders(
 order_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 user_id INT UNSIGNED NOT NULL,
 item_id INT UNSIGNED NOT NULL,
+item_quantity INT UNSIGNED NOT NULL,
 price INT UNSIGNED NOT NULL,
 PRIMARY KEY (order_id),
 CONSTRAINT user_orders FOREIGN KEY(user_id)

@@ -18,7 +18,7 @@ class UserSchema(Schema):
 class ItemSchema(Schema):
     item_id = fields.Int()
     name = fields.Str()
-    quantity = fields.Int()
+    storage_quantity = fields.Int()
     price = fields.Int()
     status = fields.Str(validate= validate.OneOf(["sold out", "available"]))
 
@@ -31,6 +31,7 @@ class OrdersSchema(Schema):
     order_id = fields.Int()
     user_id = fields.Int()
     item_id = fields.Int()
+    storage_quantity = fields.Int()
     price = fields.Int()
 
     @post_load()
