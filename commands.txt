@@ -7,9 +7,9 @@ curl -X POST http://127.0.0.1:5000/user/login -H "Content-Type:application/json"
 curl -X POST http://127.0.0.1:5000/user/login -H "Content-Type:application/json" --data-binary "{\"username\":\"user1\", \"password\":\"user1\"}"
 curl -X POST http://127.0.0.1:5000/user/login -H "Content-Type:application/json" --data-binary "{\"username\":\"user2\", \"password\":\"user2\"}"
 
-curl -X POST http://127.0.0.1:5000/api/v1/user/user2 -H "Authorization: Bearer ${token}"
+curl -X POST http://127.0.0.1:5000/user/user2 -H "Authorization: Bearer ${token}"
 
-curl -X PUT http://127.0.0.1:5000/api/v1/user/user1 -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" --data "{\"username\": \"user3\",\"first_name\": \"Tmp\", \"last_name\": \"Steven\", \"email\": \"abcf@gmail.com\"}"
+curl -X PUT http://127.0.0.1:5000/user/user1 -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" --data "{\"username\": \"user3\",\"first_name\": \"Tmp\", \"last_name\": \"Steven\", \"email\": \"abcf@gmail.com\"}"
 
 curl -X DELETE http://127.0.0.1:5000/api/v1/user/user3 -H "Authorization: Bearer ${token}"
 

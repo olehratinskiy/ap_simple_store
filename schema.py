@@ -31,7 +31,7 @@ class OrdersSchema(Schema):
     order_id = fields.Int()
     user_id = fields.Int()
     item_id = fields.Int()
-    storage_quantity = fields.Int()
+    item_quantity = fields.Int()
     price = fields.Int()
 
     @post_load()
