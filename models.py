@@ -6,6 +6,7 @@ from sqlalchemy import (
  ForeignKey,
  String,
  Enum,
+BLOB
 )
 
 
@@ -34,6 +35,14 @@ class User(BaseModel):
     password = Column(String(2000), nullable=False)
 
 
+class Img(BaseModel):
+    __tablename__ = "img"
+    id = Column(Integer, primary_key=True)
+    img = Column(BLOB(5000), nullable=False, unique=True)
+    name = Column(String(400), nullable=False)
+    mimetype = Column(String(400), nullable=False)
+
+
 class Item(BaseModel):
     __tablename__ = "item"
     item_id = Column(Integer, primary_key=True)
@@ -41,6 +50,8 @@ class Item(BaseModel):
     storage_quantity = Column(Integer, nullable=False)
     price = Column(Integer, nullable=False)
     status = Column(Enum("sold out", "available"))
+    img_id = Column(Integer, ForeignKey('img.id'))
+    img = relationship("Img", backref=backref("item", uselist=False))
 
 
 class Orders(BaseModel):

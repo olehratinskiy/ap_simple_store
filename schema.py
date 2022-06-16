@@ -15,12 +15,20 @@ class UserSchema(Schema):
         return User(**data)
 
 
+class ImgSchema(Schema):
+    id = fields.Int()
+    img = fields.Str()
+    name = fields.Str()
+    mimetype = fields.Str()
+
+
 class ItemSchema(Schema):
     item_id = fields.Int()
     name = fields.Str()
     storage_quantity = fields.Int()
     price = fields.Int()
     status = fields.Str(validate= validate.OneOf(["sold out", "available"]))
+    img_id = fields.Int()
 
     @post_load()
     def create_item(self, data, **kwargs):
