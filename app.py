@@ -1,14 +1,16 @@
 import base64
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
 from flask_cors import CORS
 from wsgiref.simple_server import make_server
 from greeting import api
 from flask_bcrypt import Bcrypt
 from schema import *
-from models import Session
+from models import Session, Img
 from datetime import timedelta
+from werkzeug.utils import secure_filename
+
 session = Session()
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -18,18 +20,35 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=10)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
+@app.route('/upload', methods=["POST"])
+def upload():
+    pic = request.files['pic']
+    if not pic:
+        return 'No pic uploaded', 400
+    filename = secure_filename(pic.filename)
+    mimetype = pic.mimetype
+
+    added_img = session.query(Img).filter_by(name=filename).first()
+    if not added_img:
+        img = Img(img=pic.read(), mimetype=mimetype, name=filename)
+        session.add(img)
+        session.commit()
+        added_img = session.query(Img).filter_by(name=filename).first()
+    return {'index': str(added_img.id)}
+
+
 @app.route('/item', methods=["POST"])
 @jwt_required()
 def add_item():
+
     current_identity_username = get_jwt_identity()
     if current_identity_username != 'admin':
         return {'message': 'Access is denied'}, 403
-
     data = request.get_json()
     if data['name'] == '' or data['storage_quantity'] == '' or data['price'] == '':
         return {'message': 'Invalid name/storage_quantity/price supplied'}, 400
 
-    new_item = Item(name=data['name'], storage_quantity=data['storage_quantity'], price=data['price'], status=data['status'])
+    new_item = Item(name=data['name'], storage_quantity=data['storage_quantity'], price=data['price'], status=data['status'], img_id=data['img_id'])
     quantity = session.query(Item.item_id).count()
     if quantity >= 8:
         return {'message': 'Exceed number of items'}, 400
@@ -45,7 +64,12 @@ def add_item():
 def get_items():
     items = session.query(Item).all()
     schema = ItemSchema(many=True)
-    return jsonify(schema.dump(items))
+    items = schema.dump(items)
+    for item in items:
+        img = session.query(Img).filter_by(id=int(item['img_id'])).first()
+        item['img_id'] = img.img.hex()
+        item['img_mimetype'] = img.mimetype
+    return jsonify(items)
 
 
 @app.route('/item/<item_id>', methods=["POST"])
@@ -77,12 +101,15 @@ def put_item_by_name(name):
         _quantity = item['storage_quantity']
         _price = item['price']
         _status = item['status']
+        _img_id = item['img_id']
         item_1 = session.query(Item).filter_by(name=name).first()
         if item_1 is not None:
             item_1.name = _name
             item_1.storage_quantity = _quantity
             item_1.price = _price
             item_1.status = _status
+            if _img_id != '':
+                item_1.img_id = _img_id
             session.commit()
             return 'Successful operation', 200
         else:
